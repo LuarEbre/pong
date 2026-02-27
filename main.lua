@@ -38,7 +38,7 @@ function drawScores()
     local rightBoxX = (screenWidth / 2) + distX
 
     -- fill blue rectangle to the left of the center line
-    love.graphics.setColor(0, 0, 255, 255)
+    love.graphics.setColor(0, 0, 1, 1)
     love.graphics.rectangle("fill", leftBoxX, boxY, rectWidth, rectHeight)
 
     -- determine font size depending on score's number of digits
@@ -59,7 +59,7 @@ function drawScores()
     local lTextY = boxY + (rectHeight / 2) - (lTextH / 2)
 
     -- print score
-    love.graphics.setColor(0, 0, 0, 255)
+    love.graphics.setColor(0, 0, 0, 1)
     love.graphics.print(tostring(lScore), math.floor(lTextX), math.floor(lTextY))
 
     -- fill red rectangle to the right of the center line
@@ -84,13 +84,13 @@ function drawScores()
     local rTextY = boxY + (rectHeight / 2) - (rTextH / 2)
 
     -- print score
-    love.graphics.setColor(0, 0, 0, 255)
+    love.graphics.setColor(0, 0, 0, 1)
     love.graphics.print(tostring(rScore), math.floor(rTextX), math.floor(rTextY))
 end
 
 -- draws a width wide center line on the screen, breaks = number of segments, distance = distance between each segment
 function drawCenterLine(width, breaks, distance) 
-    love.graphics.setColor(241, 241, 241, 255) 
+    love.graphics.setColor(0.98, 0.98, 0.98, 1) 
     
     local segmentHeight = screenHeight / breaks
     
@@ -105,11 +105,11 @@ end
 -- draws both player's paddle on the screen in their respective color
 function drawPaddles()
     -- left paddle
-    love.graphics.setColor(0,0,255,255) -- blue
+    love.graphics.setColor(0,0,1,1) -- blue
     love.graphics.rectangle("fill", lpX, lpY, paddleWidth, paddleHeight)
 
     -- right paddle
-    love.graphics.setColor(255,0,0,255) -- red
+    love.graphics.setColor(1,0,0,1) -- red
     love.graphics.rectangle("fill", rpX, rpY, paddleWidth, paddleHeight)
 end
 
@@ -118,12 +118,12 @@ function drawBall()
     if lastHit == "none" then
         love.graphics.setColor(0.94,0.94,0.94,0.5)
     elseif lastHit == "blue" then
-        love.graphics.setColor(0.0,0.0,1,0.5)
+        love.graphics.setColor(0,0,1,0.5)
     elseif lastHit == "red" then
-        love.graphics.setColor(1,0.0,0.0,0.5)
+        love.graphics.setColor(1,0,0,0.5)
     end
     love.graphics.rectangle("fill", prevX, prevY, bSize+1, bSize+1)
-    love.graphics.setColor(241,241,241,255)
+    love.graphics.setColor(0.98,0.98,0.98,1)
     love.graphics.rectangle("fill", bX, bY, bSize, bSize)
 end
 
@@ -237,6 +237,8 @@ function spawnBall()
     bounceCount = 0
     lastHit = "none"
 
+    local initVel = 0
+
     if (lScore + rScore)%2 == 0 then initVel = 1
     else initVel = -1
     end
@@ -253,7 +255,7 @@ end
 
 -- prints out positional and velocity data, as well as last player to hit the ball
 function debugPrint()
-    love.graphics.setColor(241,241,241,255)
+    love.graphics.setColor(0.98,0.98,0.98,1)
     love.graphics.setFont(debugFont)
 
     local aggregatedWidth = 10
@@ -287,7 +289,7 @@ function debugPrint()
     love.graphics.print(message, aggregatedWidth, 26)
     aggregatedWidth = aggregatedWidth + debugFont:getWidth(message) + 10
 
-    love.graphics.setColor(241,241,241,255)
+    love.graphics.setColor(0.98,0.98,0.98,1)
     message = "Bounce Count: " .. bounceCount
     love.graphics.print(message, aggregatedWidth, 26)
 
@@ -349,7 +351,7 @@ function love.draw()
     drawPaddles()
     drawBall()
     if(pause == true) then
-        love.graphics.setColor(97,97,97,0.25)
+        love.graphics.setColor(0.5,0.5,0.5,0.25)
         love.graphics.rectangle("fill",0,0,screenWidth,screenHeight)
     end
 end
