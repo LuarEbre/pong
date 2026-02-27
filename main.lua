@@ -22,6 +22,7 @@ local lastHit
 -- debug
 local showDebug
 local debugFont
+local bounceCount
 
 -- draws 2 boxes colored in the players colors and overlays their respective scores onto them
 function drawScores()
@@ -121,35 +122,35 @@ function drawBall()
     elseif lastHit == "red" then
         love.graphics.setColor(1,0.0,0.0,0.5)
     end
-    love.graphics.rectangle("fill", prevX, prevY, bSize, bSize)
+    love.graphics.rectangle("fill", prevX, prevY, bSize+1, bSize+1)
     love.graphics.setColor(241,241,241,255)
     love.graphics.rectangle("fill", bX, bY, bSize, bSize)
 end
 
--- allows for movement of the left (blue) paddle: W = up, S = down
-function moveLeftPaddle(dt)
+-- allows for movement of 
+-- the left (blue) paddle: W = up, S = down
+-- the right (red) paddle: ↑ = up, ↓ = down
+function movePaddles(dt)
+
+    local vertSpeed = 1700
     if love.keyboard.isDown("w") then
         if lpY > 0 then
-            lpY = lpY - (1250 * dt)
+            lpY = lpY - (vertSpeed * dt)
         end
     end
     if love.keyboard.isDown("s") then
         if lpY+paddleHeight < screenHeight then
-            lpY = lpY + (1250 * dt)
+            lpY = lpY + (vertSpeed * dt)
         end
     end
-end
-
--- allows for the movement of the right (red) paddle: ↑ = up, ↓ = down
-function moveRightPaddle(dt)
     if love.keyboard.isDown("up") then
         if rpY > 0 then
-            rpY = rpY - (1250 * dt)
+            rpY = rpY - (vertSpeed * dt)
         end
     end
     if love.keyboard.isDown("down") then
         if rpY+paddleHeight < screenHeight then
-            rpY = rpY + (1250 * dt)
+            rpY = rpY + (vertSpeed * dt)
         end
     end
 end
@@ -189,6 +190,8 @@ function bounce()
     -- invert X velocity to make ball bounce
     bXVel = -bXVel 
 
+    bounceCount = bounceCount + 1
+
     -- increase velocity by 60
     if(bXVel < 0) then 
         bXVel = bXVel -60
@@ -196,9 +199,9 @@ function bounce()
         bXVel = bXVel + 60
     end
     if(bYVel < 0) then 
-        bYVel = bYVel -30
+        bYVel = bYVel - 15
     else 
-        bYVel = bYVel + 30
+        bYVel = bYVel + 15
     end
 end
 
@@ -231,6 +234,7 @@ end
 --                                                      even turn -> ball flies left
 function spawnBall()
 
+    bounceCount = 0
     lastHit = "none"
 
     if (lScore + rScore)%2 == 0 then initVel = 1
@@ -239,8 +243,8 @@ function spawnBall()
     bX = screenWidth/2 + love.math.random(-50, 50)
     bY = screenHeight/2 + love.math.random(-50, 50)
     prevX, prevY = bX, bY
-    bSize = 20
-    bXVel = 200 * initVel
+    bSize = 24
+    bXVel = (screenWidth/5)* initVel
     bYVel = 0
     while math.abs(bYVel) < 150 do
         bYVel = love.math.random(-250, 250)
@@ -249,6 +253,7 @@ end
 
 -- prints out positional and velocity data, as well as last player to hit the ball
 function debugPrint()
+    love.graphics.setColor(241,241,241,255)
     love.graphics.setFont(debugFont)
 
     local aggregatedWidth = 10
@@ -278,7 +283,14 @@ function debugPrint()
 
     if(lastHit == "blue") then love.graphics.setColor(0,0,1,1)
     elseif(lastHit == "red") then love.graphics.setColor(1,0,0,1) end
-    love.graphics.print(lastHit, aggregatedWidth, 26)
+    message = lastHit
+    love.graphics.print(message, aggregatedWidth, 26)
+    aggregatedWidth = aggregatedWidth + debugFont:getWidth(message) + 10
+
+    love.graphics.setColor(241,241,241,255)
+    message = "Bounce Count: " .. bounceCount
+    love.graphics.print(message, aggregatedWidth, 26)
+
 end
 
 function love.keypressed(key)
@@ -300,7 +312,7 @@ function love.load()
     scoreFont = love.graphics.newFont(70)
     scoreFontS = love.graphics.newFont(52)
     scoreFontXS = love.graphics.newFont(40)
-    debugFont = love.graphics.newFont(12)
+    debugFont = love.graphics.newFont(16)
 
     -- get screen dimensions
     screenWidth = love.graphics.getWidth()
@@ -309,9 +321,9 @@ function love.load()
     lScore, rScore = 0, 0
 
     -- set paddles' initial position and size
-    paddleWidth, paddleHeight = 20, 150
-    lpX, lpY = 40, 20
-    rpX, rpY = screenWidth - 40 - paddleWidth, 20
+    paddleWidth, paddleHeight = 30, 200
+    lpX, lpY = 70, 20
+    rpX, rpY = screenWidth - 70 - paddleWidth, 20
 
     -- set ball's initial position, size, and assign a random velocity
     spawnBall()
@@ -324,8 +336,7 @@ function love.update(dt)
         checkBall()
         checkLeftPaddle()
         checkRightPaddle()
-        moveLeftPaddle(dt)
-        moveRightPaddle(dt)
+        movePaddles(dt)
         moveBall(dt)
     end
 end
